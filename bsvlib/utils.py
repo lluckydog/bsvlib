@@ -1,5 +1,4 @@
 import re
-import string
 from base64 import b64encode, b64decode
 from contextlib import suppress
 from typing import Tuple, Optional, Union
@@ -50,12 +49,14 @@ def decode_address(address: str) -> Tuple[bytes, Chain]:
     return decoded[1:], chain
 
 
-def validate_address(address: str) -> bool:
+def validate_address(address: str, chain: Optional[Chain] = None) -> bool:
     """
     :returns: True if address is a valid bitcoin legacy address (P2PKH)
     """
     with suppress(Exception):
-        decode_address(address)
+        _, _chain = decode_address(address)
+        if chain is not None:
+            return _chain == chain
         return True
     return False
 
@@ -270,8 +271,3 @@ def bits_to_bytes(bits: str) -> bytes:
     convert binary 0/1 string to the least number of bytes
     """
     return unsigned_to_bytes(int(bits, 2))
-
-def is_hex(hextx: bytes) -> bool:
-    hex_digits = set(string.hexdigits)
-
-    return len(hextx.hex()) % 2 == 0 and all(c in hex_digits for c in hextx.hex()) 
